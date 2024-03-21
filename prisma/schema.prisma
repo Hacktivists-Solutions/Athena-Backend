@@ -12,3 +12,60 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Permission {
+  ADMIN
+  SUPER_ADMIN
+  TECH
+  USER
+}
+
+model User {
+  id         BigInt     @id @unique
+  name       String     @unique
+  location   String
+  age        Int
+  permission Permission @default(USER)
+
+  // Posts created by a user
+  posts Post[]
+
+  // Tags user is interested in
+  interestedTags Tag[] @relation("InterestedTags")
+}
+
+model Post {
+  id         BigInt   @id @unique
+  name       String
+  link       String
+  uploadedAt DateTime 
+  language   String
+
+  // User who created the post
+  creator   User   @relation(fields: [creatorId], references: [id])
+  creatorId BigInt
+
+  // Tags associated with this post through the intermediate model
+  postTags PostTag[]
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  // Users interested in this tag
+  interestedUsers User[] @relation("InterestedTags")
+
+  // Posts associated with this tag through the intermediate model
+  postTags PostTag[]
+}
+
+model PostTag {
+  post   Post   @relation(fields: [postId], references: [id])
+  postId BigInt
+
+  tag   Tag @relation(fields: [tagId], references: [id])
+  tagId Int
+
+  @@id([postId, tagId])
+}
