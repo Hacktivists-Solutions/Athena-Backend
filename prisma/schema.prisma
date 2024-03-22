@@ -21,11 +21,12 @@ enum Permission {
 }
 
 model User {
-  id         BigInt     @id @unique
-  name       String     @unique
-  location   String
-  age        Int
-  permission Permission @default(USER)
+  id            String     @id @unique @default(uuid())
+  name          String
+  location      String
+  age           Int
+  dateofjoining DateTime   @default(now())
+  permission    Permission @default(USER)
 
   // Posts created by a user
   posts Post[]
@@ -35,15 +36,15 @@ model User {
 }
 
 model Post {
-  id         BigInt   @id @unique
+  id         String   @id @unique @default(uuid())
   name       String
   link       String
-  uploadedAt DateTime 
+  uploadedAt DateTime @default(now())
   language   String
 
   // User who created the post
   creator   User   @relation(fields: [creatorId], references: [id])
-  creatorId BigInt
+  creatorId String
 
   // Tags associated with this post through the intermediate model
   postTags PostTag[]
@@ -62,7 +63,7 @@ model Tag {
 
 model PostTag {
   post   Post   @relation(fields: [postId], references: [id])
-  postId BigInt
+  postId String
 
   tag   Tag @relation(fields: [tagId], references: [id])
   tagId Int
